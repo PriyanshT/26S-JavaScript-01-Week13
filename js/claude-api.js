@@ -55,22 +55,64 @@ function checkTokenUsage(){
 
 function displayStatus(json){
     console.log(json);
+    let pre = document.createElement("pre"); // <pre></pre>
+    
+    pre.textContent = `Is Enabled: ${json.is_enabled}
+    Last Used At: ${json.last_used_at}
+    Student ID: ${json.student_id}
+    Student Name: ${json.student_name}
+    Tokens Allocated: ${json.tokens_allocated}
+    Tokens Remaining: ${json.tokens_remaining}
+    Tokens Used: ${json.tokens_used}
+    `;
+
+    results.appendChild(pre);
 }
 
 /* STEP 8: Create the sendChatMessage function for Claude API interaction */
 function sendChatMessage(){
     // STEP 8a: Get form values
-    
+    let userInput = userMessage.value;
+
     // STEP 8b: Create complete url
+    let url = `${baseURL}/api/claude/messages`;
     
     // STEP 8c: Prepare the request body according to Claude API format
+    // Body: { model: "claude-3-5-sonnet-20241022", max_tokens: 100, messages: [{ role: "user", content: "your message" }] }
+    let body = {
+        "model": "claude-sonnet-5",
+        "max_tokens": maxTokens,
+        "messages": [{
+            "role": "user",
+            "content": userInput
+        }]
+    }
     
     // STEP 8d: Make the API request using fetch()
-    
+    fetch(url, {
+        method: "POST",
+        headers: {
+            "X-Student-API-Key": studentApiKey,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+    })
     // STEP 8e: Handle the response
-    
-    // STEP 8f: Extract the message content from Claude's response
+    .then(response => {
+        return response.json();
+    })
+    .then(json => {
+        displayMessage(json);
+    })
+}
 
+// STEP 8f: Extract the message content from Claude's response
+function displayMessage(json){
+    console.log(json);
+
+    let para = document.createElement("p"); // <p></p>
+    para.textContent = json.content[0].text;
+    results.appendChild(para);
 }
 
 // LAB EXTENSION: Multi-Message Chat Feature
